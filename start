@@ -1,0 +1,16 @@
+#!/bin/bash
+
+title() {
+	echo -e "\n- $1" | tr '[:lower:]' '[:upper:]'
+}
+
+title "docker"
+docker compose up -d
+
+symfony server:start -d
+
+title "status proxy"
+symfony proxy:status
+
+title "status docker"
+docker ps
