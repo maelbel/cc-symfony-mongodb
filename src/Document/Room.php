@@ -21,7 +21,7 @@ class Room
     #[ODM\Field(type: 'int')]
     protected ?int $numberOfBeds = null;
 
-    #[ODM\ReferenceOne(targetDocument: Hotel::class, inversedBy: 'chambres', cascade: ['persist'])]
+    #[ODM\ReferenceOne(targetDocument: Hotel::class, inversedBy: 'rooms', cascade: ['persist'])]
     protected ?Hotel $hotel = null;
 
     public function getRoomCode(): ?int {

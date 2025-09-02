@@ -21,7 +21,7 @@ class Hotel
     #[ODM\Field]
     protected ?string $hotelCategory = null;
 
-    #[ODM\ReferenceMany(targetDocument: Chambre::class, mappedBy: 'hotel', cascade: ['all'])]
+    #[ODM\ReferenceMany(targetDocument: Room::class, mappedBy: 'hotel', cascade: ['all'])]
     protected Collection $rooms;
 
     public function __construct()
