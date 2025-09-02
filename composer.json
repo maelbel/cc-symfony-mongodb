@@ -10,6 +10,7 @@
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.15",
         "doctrine/doctrine-migrations-bundle": "^3.4",
+        "doctrine/mongodb-odm-bundle": "*",
         "doctrine/orm": "^3.5",
         "mongodb/mongodb": "*",
         "phpdocumentor/reflection-docblock": "^5.6",
