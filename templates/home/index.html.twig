@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home - My Hotel{% endblock %}
+
+{% block body %}
+    <main class="max-w-6xl mx-auto px-6 py-16">
+        {% include 'components/hero.html.twig' with {
+            title: 'Welcome to My Hotel',
+            subtitle: 'Comfort, style and unforgettable experiences in the heart of the city.',
+            cta_text: 'Book now'
+        } %}
+
+        {% include 'components/features.html.twig' with {
+            items: [
+                { title: 'Rooms', text: 'Cozy and modern rooms designed for your comfort.' },
+                { title: 'Dining', text: 'Delicious local and international cuisine.' },
+                { title: 'Wellness', text: 'Spa, pool and fitness facilities to relax.' }
+            ]
+        } %}
+
+            {% include 'components/section.html.twig' with {
+                title: 'Special offer',
+                text: 'Save 20% on stays this season. Limited time only.',
+                button_text: 'See offers',
+                button_url: '#'
+            } %}
+    </main>
+{% endblock %}

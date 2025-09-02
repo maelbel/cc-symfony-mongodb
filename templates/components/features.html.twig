@@ -1,0 +1,8 @@
+<section id="features" class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+  {% for item in items %}
+    <div class="bg-white rounded-xl p-6 shadow">
+      <h3 class="text-xl font-semibold text-sky-700">{{ item.title }}</h3>
+      <p class="mt-2 text-slate-600">{{ item.text }}</p>
+    </div>
+  {% endfor %}
+</section>
