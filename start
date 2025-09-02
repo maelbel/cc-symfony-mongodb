@@ -8,6 +8,7 @@ title "docker"
 docker compose up -d
 
 symfony server:start -d
+npm run dev
 
 title "status proxy"
 symfony proxy:status
