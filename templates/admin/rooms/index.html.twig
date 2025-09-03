@@ -1,0 +1,10 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}{{ title }} - My Hotel{% endblock %}
+
+{% block dashboard_content %}
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-sky-700">{% block dashboard_title %}{{ title }}{% endblock %}</h1>
+    <p class="text-sm text-slate-500">{% block dashboard_subtitle %}Welcome to your dashboard. This is a placeholder page — replace with useful widgets (bookings, stats, etc.).{% endblock %}</p>
+  </div>
+{% endblock %}
