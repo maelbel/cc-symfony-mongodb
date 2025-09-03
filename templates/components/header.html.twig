@@ -1,10 +1,20 @@
 <header class="bg-white/60 backdrop-blur sticky top-0 z-30">
   <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
     <a href="{{ path('home') }}" class="text-2xl font-bold text-sky-700">My Hotel</a>
-    <nav class="space-x-4">
-      <a href="#rooms" class="text-sky-600 hover:underline">Rooms</a>
-      <a href="#facilities" class="text-sky-600 hover:underline">Facilities</a>
-      <a href="#contact" class="text-sky-600 hover:underline">Contact</a>
-    </nav>
+    <div class="flex items-center space-x-6">
+      <nav class="hidden sm:flex space-x-4">
+        <a href="#rooms" class="text-sky-600 hover:underline">Rooms</a>
+        <a href="#facilities" class="text-sky-600 hover:underline">Facilities</a>
+        <a href="#contact" class="text-sky-600 hover:underline">Contact</a>
+      </nav>
+
+      <div class="flex items-center space-x-3">
+        {# Secondary button: Dashboard #}
+        <a href="{{ path('admin_dashboard') }}" class="px-4 py-2 rounded-md text-sm font-medium border border-sky-600 text-sky-600 hover:bg-sky-50">Dashboard</a>
+
+        {# Primary button: Login #}
+        <a href="#" class="px-4 py-2 rounded-md text-sm font-medium bg-sky-600 text-white hover:bg-sky-700">Login</a>
+      </div>
+    </div>
   </div>
 </header>

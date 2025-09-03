@@ -1,0 +1,18 @@
+<aside class="fixed top-12 bottom-0 left-0 w-64 bg-slate-50 border-r overflow-hidden">
+  <div class="p-4 space-y-4">
+    <div class="text-sm text-slate-500 uppercase font-medium">Manage</div>
+    <nav class="space-y-1" aria-label="Main admin navigation">
+      <a href="{{ path('admin_hotels') }}" class="block px-3 py-2 rounded text-sm text-slate-700 hover:bg-slate-200">Hotels</a>
+      <a href="{{ path('admin_rooms') }}" class="block px-3 py-2 rounded text-sm text-slate-700 hover:bg-slate-200">Rooms</a>
+      <a href="{{ path('admin_bookings') }}" class="block px-3 py-2 rounded text-sm text-slate-700 hover:bg-slate-200">Bookings</a>
+      <a href="{{ path('admin_customers') }}" class="block px-3 py-2 rounded text-sm text-slate-700 hover:bg-slate-200">Customers</a>
+    </nav>
+
+    <div class="pt-4 border-t">
+      <div class="text-sm text-slate-500 uppercase font-medium">Settings</div>
+      <nav class="mt-2 space-y-1" aria-label="Admin settings navigation">
+        <a href="{{ path('admin_profiles') }}" class="block px-3 py-2 rounded text-sm text-slate-700 hover:bg-slate-200">Profile</a>
+      </nav>
+    </div>
+  </div>
+</aside>

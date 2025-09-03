@@ -1,0 +1,14 @@
+<div class="fixed w-full">
+  <div class="flex items-center justify-between h-12 px-6 border-b bg-slate-50">
+    <div class="flex items-center space-x-4">
+      <a href="{{ path('admin_dashboard') }}" class="text-lg font-semibold text-sky-700">Dashboard</a>
+      <nav class="hidden lg:flex items-center space-x-2">
+        <a href="{{ path('admin_dashboard') }}" class="px-3 py-1 rounded text-sm text-sky-600 hover:bg-sky-100">Overview</a>
+      </nav>
+    </div>
+
+    <div class="flex items-center space-x-3">
+      <a href="{{ path('home') }}" target="_blank" rel="noopener" class="px-3 py-1 text-sm rounded bg-sky-600 text-white hover:bg-sky-700">View site</a>
+    </div>
+  </div>
+</div>

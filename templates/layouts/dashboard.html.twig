@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  <div class="min-h-screen overflow-hidden">
+    {% include 'components/admin/topbar.html.twig' %}
+    {% include 'components/admin/sidebar.html.twig' %}
+
+    <main class="ml-64 mt-12 p-4">
+        {% block dashboard_content %}{% endblock %}
+    </main>
+  </div>
+{% endblock %}
