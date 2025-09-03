@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Knp\Component\Pager\PaginatorInterface;
 
 class HotelController extends AbstractController
 {
@@ -19,31 +20,38 @@ class HotelController extends AbstractController
     private LoggerInterface $logger;
     private $hotelRepository;
     private $roomRepository;
+    private $paginator;
 
-    public function __construct(DocumentManager $dm, LoggerInterface $logger)
+    public function __construct(DocumentManager $dm, LoggerInterface $logger, PaginatorInterface $paginator)
     {
         $this->dm = $dm;
         $this->logger = $logger;
         $this->hotelRepository = $this->dm->getRepository(Hotel::class);
         $this->roomRepository = $this->dm->getRepository(Room::class);
+        $this->paginator = $paginator;
     }
 
     #[Route('/hotel', name: 'hotel_index', methods: ['GET'])]
-    public function getAll(): Response
+    public function getAll(Request $request): Response
     {
-        $hotels = $this->hotelRepository->findAll();
+        $query = $this->hotelRepository->createQueryBuilder()->getQuery();
+        $pagination = $this->paginator->paginate($query, $request->query->getInt('page', 1), 10);
 
-        $data = [];
-        foreach ($hotels as $hotel) {
-            $data[] = [
+        $data = array_map(fn($hotel) => [
                 'hotelCode' => $hotel->getHotelCode(),
                 'hotelName' => $hotel->getHotelName(),
-                'hotelCategory' => $hotel->getHotelAddress(),
-                'hotelAddress' => $hotel->getHotelCategory(),
-            ];
-        }
+                'hotelCategory' => $hotel->getHotelCategory(),
+                'hotelAddress' => $hotel->getHotelAddress(),
+            ], $pagination->getItems());
 
-        return new JsonResponse($data);
+        return new JsonResponse([
+            'data' => $data,
+            'pagination' => [
+                'currentPage' => $pagination->getCurrentPageNumber(),
+                'totalItems' => $pagination->getTotalItemCount(),
+                'itemsPerPage' => $pagination->getItemNumberPerPage(),
+            ]
+        ]);
     }
 
     #[Route('/hotel/browse', name: 'hotel_browse', methods: ['GET'])]
@@ -51,6 +59,7 @@ class HotelController extends AbstractController
     {
         $hotelRepository = $this->hotelRepository;
         $queryBuilder = $hotelRepository->createQueryBuilder();
+        $responseData = ['data' => [], 'pagination' => []];
 
         //params from URL
         $category = $request->query->get('hotelCategory');
@@ -74,19 +83,26 @@ class HotelController extends AbstractController
             $queryBuilder->field('hotelAddress')->equals(new Regex($searchByAddress, 'i'));
         }
 
-        $hotels = $queryBuilder->getQuery()->execute();
+        $pagination = $this->paginator->paginate(
+            $queryBuilder->getQuery(),
+            $request->query->getInt('page', 1),
+            10
+        );
 
-        $result = [];
-        foreach ($hotels as $hotel) {
-            $result[] = [
-                'hotelCode'     => $hotel->getHotelCode(),
-                'hotelName'     => $hotel->getHotelName(),
-                'hotelAddress'  => $hotel->getHotelAddress(),
-                'hotelCategory' => $hotel->getHotelCategory(),
-            ];
-        }
+        $responseData['data'] = array_map(fn($hotel) => [
+            'hotelCode'     => $hotel->getHotelCode(),
+            'hotelName'     => $hotel->getHotelName(),
+            'hotelAddress'  => $hotel->getHotelAddress(),
+            'hotelCategory' => $hotel->getHotelCategory(),
+        ], $pagination->getItems());
 
-        return $this->json($result);
+        $responseData['pagination'] = [
+            'currentPage' => $pagination->getCurrentPageNumber(),
+            'totalItems' => $pagination->getTotalItemCount(),
+            'itemsPerPage' => $pagination->getItemNumberPerPage(),
+        ];
+
+        return new JsonResponse($responseData);
     }
     #[Route('/hotel/add', name: 'hotel_add', methods: ['POST'])]
     public function add(Request $request): Response

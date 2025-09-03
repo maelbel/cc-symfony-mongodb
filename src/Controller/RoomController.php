@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Knp\Component\Pager\PaginatorInterface;
 
 class RoomController extends AbstractController
 {
@@ -19,81 +20,69 @@ class RoomController extends AbstractController
     private LoggerInterface $logger;
     private $roomRepository;
     private $hotelRepository;
+    private $paginator;
 
-    public function __construct(DocumentManager $dm, LoggerInterface $logger)
+    public function __construct(DocumentManager $dm, LoggerInterface $logger, PaginatorInterface $paginator)
     {
         $this->dm = $dm;
         $this->logger = $logger;
         $this->roomRepository = $this->dm->getRepository(Room::class);
         $this->hotelRepository = $this->dm->getRepository(Hotel::class);
+        $this->paginator = $paginator;
     }
 
     #[Route('/room', name: 'room_index', methods: ['GET'])]
-    public function getAll(): Response
+    public function getAll(Request $request): Response
     {
-        $rooms = $this->roomRepository->findAll();
+        $query = $this->roomRepository->createQueryBuilder()->getQuery();
+        $pagination = $this->paginator->paginate($query, $request->query->getInt('page', 1), 10);
 
-        $data = [];
-        foreach ($rooms as $room) {
-            $data[] = [
-                'roomCode' => $room->getRoomCode(),
-                'floor' => $room->getFloor(),
-                'type' => $room->getType(),
-                'numberOfBeds' => $room->getNumberOfBeds(),
-                'hotelCode' => $room->getHotel() ? $room->getHotel()->getHotelCode() : null,
-            ];
-        }
+        $data = array_map(fn($room) => [
+            'roomCode' => $room->getRoomCode(),
+            'floor' => $room->getFloor(),
+            'type' => $room->getType(),
+            'numberOfBeds' => $room->getNumberOfBeds(),
+            'hotelCode' => $room->getHotel() ? $room->getHotel()->getHotelCode() : null,
+        ], $pagination->getItems());
 
-        return new JsonResponse($data);
+        return new JsonResponse([
+            'data' => $data,
+            'pagination' => [
+                'currentPage' => $pagination->getCurrentPageNumber(),
+                'totalItems' => $pagination->getTotalItemCount(),
+                'itemsPerPage' => $pagination->getItemNumberPerPage(),
+            ]
+        ]);
     }
 
     #[Route('/room/browse', name: 'room_browse', methods: ['GET'])]
     public function browse(Request $request): Response
     {
         $queryBuilder = $this->roomRepository->createQueryBuilder();
+        $responseData = ['data' => [], 'pagination' => []];
 
-        // Params from URL
-        $type = $request->query->get('type');
-        $floor = $request->query->get('floor');
-        $numberOfBeds = $request->query->get('numberOfBeds');
-        $hotelCode = $request->query->get('hotelCode');
+        $this->applyBrowseFilters($queryBuilder, $request);
+        $pagination = $this->paginator->paginate(
+            $queryBuilder->getQuery(),
+            $request->query->getInt('page', 1),
+            10
+        );
 
-        // Add criteria based on parameters
-        if ($type) {
-            $queryBuilder->field('type')->equals(new Regex($type, 'i'));
-        }
+        $responseData['data'] = array_map(fn($room) => [
+            'roomCode' => $room->getRoomCode(),
+            'floor' => $room->getFloor(),
+            'type' => $room->getType(),
+            'numberOfBeds' => $room->getNumberOfBeds(),
+            'hotelCode' => $room->getHotel() ? $room->getHotel()->getHotelCode() : null,
+        ], $pagination->getItems());
 
-        if ($floor) {
-            $queryBuilder->field('floor')->equals((int)$floor);
-        }
+        $responseData['pagination'] = [
+            'currentPage' => $pagination->getCurrentPageNumber(),
+            'totalItems' => $pagination->getTotalItemCount(),
+            'itemsPerPage' => $pagination->getItemNumberPerPage(),
+        ];
 
-        if ($numberOfBeds) {
-            $queryBuilder->field('numberOfBeds')->equals((int)$numberOfBeds);
-        }
-
-        if ($hotelCode) {
-            $hotel = $this->hotelRepository->find($hotelCode);
-            if ($hotel) {
-                $queryBuilder->field('hotel')->references($hotel);
-            } else {
-                return $this->json(['error' => 'Hotel not found'], 404);
-            }
-        }
-
-        $rooms = $queryBuilder->getQuery()->execute();
-
-        $result = [];
-        foreach ($rooms as $room) {
-            $result[] = [
-                'roomCode' => $room->getRoomCode(),
-                'floor' => $room->getFloor(),
-                'type' => $room->getType(),
-                'numberOfBeds' => $room->getNumberOfBeds(),
-                'hotelCode' => $room->getHotel() ? $room->getHotel()->getHotelCode() : null,
-            ];
-        }
-
-        return $this->json($result);
+        return new JsonResponse($responseData);
     }
 
     #[Route('/room/add', name: 'room_add', methods: ['POST'])]
