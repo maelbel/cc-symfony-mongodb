@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Document\Room;
 use App\Document\Hotel;
+use App\Service\HotelService;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use MongoDB\BSON\Regex;
 use Psr\Log\LoggerInterface;
@@ -17,19 +18,15 @@ use App\Service\RoomService;
 
 class RoomController extends AbstractController
 {
-    private DocumentManager $dm;
     private LoggerInterface $logger;
-    private $hotelRepository;
-    private $paginator;
     private RoomService $roomService;
+    private HotelService $hotelService;
 
-    public function __construct(DocumentManager $dm, LoggerInterface $logger, PaginatorInterface $paginator, RoomService $roomService)
+    public function __construct(LoggerInterface $logger, RoomService $roomService, HotelService $hotelService, DocumentManager $dm)
     {
-        $this->dm = $dm;
         $this->logger = $logger;
-        $this->hotelRepository = $this->dm->getRepository(Hotel::class);
-        $this->paginator = $paginator;
         $this->roomService = $roomService;
+        $this->hotelService = $hotelService;
     }
 
     #[Route('/room', name: 'room_index', methods: ['GET'])]
@@ -51,7 +48,7 @@ class RoomController extends AbstractController
         if (!$data || !isset($data['floor'], $data['type'], $data['numberOfBeds'], $data['hotelCode'])) {
             return $this->json(['error' => 'Required fields: floor, type, numberOfBeds, hotelCode'], 400);
         }
-        $hotel = $this->hotelRepository->find($data['hotelCode']);
+        $hotel = $this->hotelService->getByCode($data['hotelCode']);
         if (!$hotel) {
             return $this->json(['error' => 'Hotel not found'], 404);
         }
@@ -82,7 +79,7 @@ class RoomController extends AbstractController
             return $this->json(['error' => 'Room not found'], 404);
         }
         $data = json_decode($request->getContent(), true);
-        $hotel = $this->hotelRepository->find($data['hotelCode']);
+        $hotel = $this->hotelService->getByCode($data['hotelCode']);
         
         if (
         !$data
