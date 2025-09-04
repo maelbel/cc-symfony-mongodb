@@ -1,10 +1,62 @@
-{% extends 'layouts/dashboard.html.twig' %}
+{% extends 'base.html.twig' %}
+{% block title %}{{ title }}{% endblock %}
+{% block body %}
+    <h1>{{ title }}</h1>
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">{{ message }}</div>
+    {% endfor %}
 
-{% block title %}{{ title }} - My Hotel{% endblock %}
+    <!-- Filter Form -->
+    <form action="{{ path('admin_rooms') }}" method="get">
+        <label>Type: <input type="text" name="type" value="{{ filters.type }}"></label>
+        <label>Floor: <input type="number" name="floor" value="{{ filters.floor }}"></label>
+        <label> Hotel: 
+            <select name="hotelCode">
+                <option value="">All Hotels</option>
+                {% for hotel in hotels %}
+                    <option value="{{ hotel.hotelCode }}" {% if filters.hotelCode == hotel.hotelCode %}selected{% endif %}>
+                        {{ hotel.name|default(hotel.hotelCode) }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+        <button type="submit">Filter</button>
+        <a href="{{ path('admin_rooms') }}"> Clear </a>
+    </form>
 
-{% block dashboard_content %}
-  <div class="mb-6">
-    <h1 class="text-2xl font-bold text-sky-700">{% block dashboard_title %}{{ title }}{% endblock %}</h1>
-    <p class="text-sm text-slate-500">{% block dashboard_subtitle %}Welcome to your dashboard. This is a placeholder page — replace with useful widgets (bookings, stats, etc.).{% endblock %}</p>
-  </div>
+    <a href="{{ path('admin_rooms_new') }}">Add New Room</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Room Code</th>
+                <th>Floor</th>
+                <th>Type</th>
+                <th>Beds</th>
+                <th>Hotel Code</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for room in rooms %}
+                <tr>
+                    <td>{{ room.roomCode }}</td>
+                    <td>{{ room.floor }}</td>
+                    <td>{{ room.type }}</td>
+                    <td>{{ room.numberOfBeds }}</td>
+                    <td>{{ room.hotelCode }}</td>
+                    <td>
+                        <a href="{{ path('admin_rooms_view', {'roomCode': room.roomCode}) }}">View</a>
+                        <a href="{{ path('admin_rooms_edit', {'roomCode': room.roomCode}) }}">Edit</a>
+                        <form action="{{ path('admin_rooms_delete', {'roomCode': room.roomCode}) }}" method="post" style="display:inline;">
+                            <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {{ knp_pagination_render(pagination) }}
 {% endblock %}

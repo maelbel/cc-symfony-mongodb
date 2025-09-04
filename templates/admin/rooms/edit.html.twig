@@ -1,0 +1,38 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}Edit Room - My Hotel{% endblock %}
+
+{% block dashboard_content %}
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-sky-700">Edit Room</h1>
+    <p class="text-sm text-slate-500">Update the details of this room below.</p>
+  </div>
+  <div class="bg-white rounded shadow p-6 max-w-lg mx-auto">
+    <form method="post" action="{{ path('admin_rooms_update', {'roomCode': room.roomCode}) }}">
+      <div class="mb-4">
+        <label for="floor" class="block text-slate-700 font-medium mb-1">Floor</label>
+        <input type="number" id="floor" name="floor" class="w-full border border-slate-300 rounded px-3 py-2" value="{{ room.floor }}" required>
+      </div>
+      <div class="mb-4">
+        <label for="type" class="block text-slate-700 font-medium mb-1">Type</label>
+        <input type="text" id="type" name="type" class="w-full border border-slate-300 rounded px-3 py-2" value="{{ room.type }}" required>
+      </div>
+      <div class="mb-4">
+        <label for="numberOfBeds" class="block text-slate-700 font-medium mb-1">Number of Beds</label>
+        <input type="number" id="numberOfBeds" name="numberOfBeds" class="w-full border border-slate-300 rounded px-3 py-2" value="{{ room.numberOfBeds }}" required>
+      </div>
+      <div class="mb-4">
+        <label for="hotelCode" class="block text-slate-700 font-medium mb-1">Hotel</label>
+        <select id="hotelCode" name="hotelCode" class="w-full border border-slate-300 rounded px-3 py-2" required>
+          {% for hotel in hotels %}
+            <option value="{{ hotel.getHotelCode() }}" {% if hotel.getHotelCode() == room.hotelCode %}selected{% endif %}>{{ hotel.getHotelName() }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="flex justify-end gap-2 mt-6">
+        <button type="submit" class="px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700">Update Room</button>
+        <a href="{{ path('admin_rooms') }}" class="px-4 py-2 bg-slate-200 text-slate-700 rounded hover:bg-slate-300">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}
