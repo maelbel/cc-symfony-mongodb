@@ -1,0 +1,38 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}Add New Room - My Hotel{% endblock %}
+
+{% block dashboard_content %}
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-sky-700">Add New Room</h1>
+    <p class="text-sm text-slate-500">Fill in the details below to create a new room.</p>
+  </div>
+  <div class="bg-white rounded shadow p-6 max-w-lg mx-auto">
+    <form method="post" action="{{ path('admin_rooms_create') }}">
+      <div class="mb-4">
+        <label for="floor" class="block text-slate-700 font-medium mb-1">Floor</label>
+        <input type="number" id="floor" name="floor" class="w-full border border-slate-300 rounded px-3 py-2" required>
+      </div>
+      <div class="mb-4">
+        <label for="type" class="block text-slate-700 font-medium mb-1">Type</label>
+        <input type="text" id="type" name="type" class="w-full border border-slate-300 rounded px-3 py-2" required>
+      </div>
+      <div class="mb-4">
+        <label for="numberOfBeds" class="block text-slate-700 font-medium mb-1">Number of Beds</label>
+        <input type="number" id="numberOfBeds" name="numberOfBeds" class="w-full border border-slate-300 rounded px-3 py-2" required>
+      </div>
+      <div class="mb-4">
+        <select id="hotelCode" name="hotelCode" required>
+        <option value="" disabled selected>Select a hotel</option>
+        {% for h in hotels %}
+            <option value="{{ h.hotelCode }}">{{ h.name ?? ('Hotel #' ~ h.hotelCode) }}</option>
+        {% endfor %}
+        </select>
+      </div>
+      <div class="flex justify-end gap-2 mt-6">
+        <button type="submit" class="px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700">Add Room</button>
+        <a href="{{ path('admin_rooms') }}" class="px-4 py-2 bg-slate-200 text-slate-700 rounded hover:bg-slate-300">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

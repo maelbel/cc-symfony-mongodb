@@ -1,0 +1,30 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}Edit Hotel - My Hotel{% endblock %}
+
+{% block dashboard_content %}
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-sky-700">Edit Hotel</h1>
+    <p class="text-sm text-slate-500">Update the details of this hotel below.</p>
+  </div>
+  <div class="bg-white rounded shadow p-6 max-w-lg mx-auto">
+    <form method="post" action="{{ path('admin_hotels_update', {'codeHotel': hotel.hotelCode}) }}">
+      <div class="mb-4">
+        <label for="hotelName" class="block text-slate-700 font-medium mb-1">Hotel Name</label>
+        <input type="text" id="hotelName" name="hotelName" class="w-full border border-slate-300 rounded px-3 py-2" value="{{ hotel.hotelName }}" required>
+      </div>
+      <div class="mb-4">
+        <label for="hotelAddress" class="block text-slate-700 font-medium mb-1">Hotel Address</label>
+        <input type="text" id="hotelAddress" name="hotelAddress" class="w-full border border-slate-300 rounded px-3 py-2" value="{{ hotel.hotelAddress }}" required>
+      </div>
+      <div class="mb-4">
+        <label for="hotelCategory" class="block text-slate-700 font-medium mb-1">Hotel Category</label>
+        <input type="text" id="hotelCategory" name="hotelCategory" class="w-full border border-slate-300 rounded px-3 py-2" value="{{ hotel.hotelCategory }}" required>
+      </div>
+      <div class="flex justify-end gap-2 mt-6">
+        <button type="submit" class="px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700">Update Hotel</button>
+        <a href="{{ path('admin_hotels') }}" class="px-4 py-2 bg-slate-200 text-slate-700 rounded hover:bg-slate-300">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

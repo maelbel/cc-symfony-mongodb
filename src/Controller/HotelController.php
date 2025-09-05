@@ -2,8 +2,7 @@
 
 namespace App\Controller;
 
-use App\Document\Hotel;
-use App\Document\Room;
+use App\Service\HotelService;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use MongoDB\BSON\Regex;
 use Psr\Log\LoggerInterface;
@@ -12,130 +11,73 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Knp\Component\Pager\PaginatorInterface;
 
 class HotelController extends AbstractController
 {
-    private DocumentManager $dm;
-    private LoggerInterface $logger;
-    private $hotelRepository;
-    private $roomRepository;
+    private $hotelService;
 
-    public function __construct(DocumentManager $dm, LoggerInterface $logger)
+    public function __construct(HotelService $hotelService)
     {
-        $this->dm = $dm;
-        $this->logger = $logger;
-        $this->hotelRepository = $this->dm->getRepository(Hotel::class);
-        $this->roomRepository = $this->dm->getRepository(Room::class);
+        $this->hotelService = $hotelService;
     }
 
     #[Route('/hotel', name: 'hotel_index', methods: ['GET'])]
-    public function getAll(): Response
+    public function getAll(Request $request): Response
     {
-        $hotels = $this->hotelRepository->findAll();
-
-        $data = [];
-        foreach ($hotels as $hotel) {
-            $data[] = [
-                'hotelCode' => $hotel->getHotelCode(),
-                'hotelName' => $hotel->getHotelName(),
-                'hotelCategory' => $hotel->getHotelAddress(),
-                'hotelAddress' => $hotel->getHotelCategory(),
-            ];
-        }
-
-        return new JsonResponse($data);
+        $data = $this->hotelService->getAll($request);
+        return new JsonResponse([
+            'data' => $data['data'],
+            'pagination' => $data['pagination'],
+        ]);
     }
 
     #[Route('/hotel/browse', name: 'hotel_browse', methods: ['GET'])]
     public function browse(Request $request): Response
     {
-        $hotelRepository = $this->hotelRepository;
-        $queryBuilder = $hotelRepository->createQueryBuilder();
-
-        //params from URL
-        $category = $request->query->get('hotelCategory');
-        $searchTerm = $request->query->get('hotelName');
-        $searchByAddress = $request->query->get('hotelAddress');
-
-        // add criteria based on parameters
-        if ($category) {
-            // Validate that category is a string of stars (e.g., "*****")
-            if (preg_match('/^\*+$/', $category)) {
-                $queryBuilder->field('hotelCategory')->equals($category);
-            } else {
-                return $this->json(['error' => 'Category Hotel must contain only asterisks ("*", "**", "***"...)'], 400);
-            }
+        try {
+            $data = $this->hotelService->browse($request);
+            return new JsonResponse([
+                'data' => $data['data'],
+                'pagination' => $data['pagination'],
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['error' => $e->getMessage()], 400);
         }
-
-        if ($searchTerm) {
-            $queryBuilder->field('hotelName')->equals(new Regex($searchTerm, 'i'));
-        }
-        if ($searchByAddress) {
-            $queryBuilder->field('hotelAddress')->equals(new Regex($searchByAddress, 'i'));
-        }
-
-        $hotels = $queryBuilder->getQuery()->execute();
-
-        $result = [];
-        foreach ($hotels as $hotel) {
-            $result[] = [
-                'hotelCode'     => $hotel->getHotelCode(),
-                'hotelName'     => $hotel->getHotelName(),
-                'hotelAddress'  => $hotel->getHotelAddress(),
-                'hotelCategory' => $hotel->getHotelCategory(),
-            ];
-        }
-
-        return $this->json($result);
     }
     #[Route('/hotel/add', name: 'hotel_add', methods: ['POST'])]
     public function add(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
 
-        if (!$data || !isset($data['hotelName'], $data['hotelAddress'], $data['hotelCategory'])) {
-            return $this->json(['error' => 'Required Field : hotelName, hotelAddress, hotelCategory'], 400);
+        try {
+            $result = $this->hotelService->add($data);
+            return $this->json($result, 201);
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['error' => $e->getMessage()], 400);
         }
-
-        $hotel = new Hotel();
-        $hotel->setHotelName($data['hotelName']);
-        $hotel->setHotelAddress($data['hotelAddress']);
-        $hotel->setHotelCategory($data['hotelCategory']);
-
-        $this->dm->persist($hotel);
-        $this->dm->flush();
-
-        return $this->json([
-            'message' => 'Hotel created successfully',
-            'hotel'   => [
-                'hotelCode'     => $hotel->getHotelCode(),
-                'hotelName'      => $hotel->getHotelName(),
-                'hotelAddress'  => $hotel->getHotelAddress(),
-                'hotelCategory'=> $hotel->getHotelCategory(),
-            ]
-        ], 201);
     }
     #[Route('/hotel/getByCode/{codeHotel}', name: 'hotel_read', methods: ['GET'])]
     public function getByCode(string $codeHotel): Response
     {
-        $hotel = $this->hotelRepository->find($codeHotel);
+        $hotel = $this->hotelService->getByCode($codeHotel);
 
         if (!$hotel) {
             return $this->json(['error' => 'Hotel Not Found'], 404);
         }
 
         return $this->json([
-            'hotelCode'     => $hotel->getHotelCode(),
-            'hotelName'      => $hotel->getHotelName(),
-            'hotelAddress'  => $hotel->getHotelAddress(),
-            'hotelCategory'=> $hotel->getHotelCategory(),
+            'hotelCode' => $hotel->getHotelCode(),
+            'hotelName' => $hotel->getHotelName(),
+            'hotelAddress' => $hotel->getHotelAddress(),
+            'hotelCategory' => $hotel->getHotelCategory(),
         ]);
     }
 
     #[Route('/hotel/update/{codeHotel}', name: 'hotel_edit', methods: ['PUT'])]
     public function update(string $codeHotel, Request $request): Response
     {
-        $hotel = $this->hotelRepository->find($codeHotel);
+        $hotel = $this->hotelService->getByCode($codeHotel);
 
         if (!$hotel) {
             return $this->json(['error' => 'Hotel Not Found'], 404);
@@ -143,97 +85,56 @@ class HotelController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
 
-        if (!$data || !isset($data['hotelName'], $data['hotelAddress'], $data['hotelCategory'])) {
-            return $this->json(['error' => 'Required Field : nomHotel, adresseHotel, categorieHotel'], 400);
+        try {
+            $result = $this->hotelService->update($hotel, $data);
+            return $this->json($result);
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['error' => $e->getMessage()], 400);
         }
-
-        $hotel->setHotelName($data['hotelName']);
-        $hotel->setHotelAddress($data['hotelAddress']);
-        $hotel->setHotelCategory($data['hotelCategory']);
-
-        $this->dm->flush();
-
-        return $this->json([
-            'message' => 'hotel updated successfully',
-            'hotel'   => [
-                'hotelCode'     => $hotel->getHotelCode(),
-                'hotelName'      => $hotel->getHotelName(),
-                'hotelAddress'  => $hotel->getHotelAddress(),
-                'hotelCategory'=> $hotel->getHotelCategory(),
-            ]
-        ]);
     }
 
     #[Route('/hotel/delete/{codeHotel}', name: 'hotel_delete', methods: ['DELETE'])]
     public function delete(string $codeHotel): Response
     {
-        $hotel = $this->hotelRepository->find($codeHotel);
+        $hotel = $this->hotelService->getByCode($codeHotel);
 
         if (!$hotel) {
             return $this->json(['error' => 'Hotel Not Found'], 404);
         }
 
-        $this->dm->remove($hotel);
-        $this->dm->flush();
-
-        return $this->json(['message' => 'hotel deleted successfully']);
+        $result = $this->hotelService->delete($hotel);
+        return $this->json($result);
     }
     #[Route('/hotel/addRoomToHotel', name: 'hotel_add_room_to_hotel', methods: ['POST'])]
     public function addRoomToHotel(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
 
-        if (!$data || !isset($data['hotelCode'], $data['floor'], $data['type'], $data['numberOfBeds'])) {
-            return $this->json(['error' => 'Required Field : hotelCode, floor, type, numberOfBeds'], 400);
-        }
+        $hotelCode = $data['hotelCode'] ?? null;
+        $hotel = $this->hotelService->getByCode($hotelCode);
 
-        $hotel = $this->hotelRepository->find($data['hotelCode']);
         if (!$hotel) {
             return $this->json(['error' => 'Hotel Not Found'], 404);
         }
 
-        $room = new Room();
-        $room->setFloor($data['floor']);
-        $room->setType($data['type']);
-        $room->setNumberOfBeds($data['numberOfBeds']);
-        $room->setHotel($hotel);
-
-        $this->dm->persist($room);
-        $this->dm->flush();
-
-        return $this->json([
-            'message' => 'Room added to hotel successfully',
-            'room'    => [
-                'roomCode'     => $room->getRoomCode(),
-                'floor'         => $room->getFloor(),
-                'type'          => $room->getType(),
-                'numberOfBeds' => $room->getNumberOfBeds(),
-                'hotelCode'   => $hotel->getHotelCode(),
-            ]
-        ], 201);
+        try {
+            $result = $this->hotelService->addRoomToHotel($data, $hotel);
+            return $this->json($result, 201);
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['error' => $e->getMessage()], 400);
+        }
     }
 
     #[Route('/hotel/{codeHotel}/rooms', name: 'hotel_get_rooms', methods: ['GET'])]
     public function getRoomsByHotel(string $codeHotel): Response
     {
-        $hotel = $this->hotelRepository->find($codeHotel);
+        $hotel = $this->hotelService->getByCode($codeHotel);
 
         if (!$hotel) {
             return $this->json(['error' => 'Hotel Not Found'], 404);
         }
 
-        $rooms =$this->roomRepository->findBy(['hotel' => $hotel]);
-
-        $data = [];
-        foreach ($rooms as $room) {
-            $data[] = [
-                'roomCode'     => $room->getRoomCode(),
-                'floor'         => $room->getFloor(),
-                'type'          => $room->getType(),
-                'numberOfBeds' => $room->getNumberOfBeds(),
-            ];
-        }
-
+        $data = $this->hotelService->getRoomsByHotel($hotel);
         return new JsonResponse($data);
     }
     
@@ -250,20 +151,13 @@ class HotelController extends AbstractController
     #[Route('/hotel/{codeHotel}/roomsType', name:'hotel_get_hotel_rooms_type', methods: ['GET'])]
     public function getRoomsTypeByHotel(string $codeHotel): Response
     {
-        $hotel = $this->hotelRepository->find($codeHotel);
+        $hotel = $this->hotelService->getByCode($codeHotel);
 
         if (!$hotel) {
             return $this->json(['error' => 'Hotel Not Found'], 404);
         }
 
-        $rooms =$this->roomRepository->findBy(['hotel' => $hotel]);
-
-        $types = [];
-        foreach ($rooms as $room) {
-            $types[] = $room->getType();
-        }
-        $uniqueCategories = array_values(array_unique($types));
-
-        return new JsonResponse($uniqueCategories);
+        $data = $this->hotelService->getRoomsTypeByHotel($hotel);
+        return new JsonResponse($data);
     }
 }
