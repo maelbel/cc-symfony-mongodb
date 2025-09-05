@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+
+        {{ form_row(form.username) }}
+        {{ form_row(form.adress) }}
+        {{ form_row(form.tel) }}
+        {{ form_row(form.mail) }}
+        {{ form_row(form.password) }}
+
+        {{ form_row(form.register, { 'label': 'Register' }) }}
+    {{ form_end(form) }}
+{% endblock %}
