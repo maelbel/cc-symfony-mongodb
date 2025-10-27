@@ -1,28 +1,44 @@
 {% extends 'layouts/public.html.twig' %}
 
-{% block title %}Home - My Hotel{% endblock %}
+{% block title %}Accueil - My Hotel{% endblock %}
 
 {% block main %}
-    <main class="max-w-6xl mx-auto px-6 py-16">
-        {% include 'components/hero.html.twig' with {
-                title: 'Welcome to My Hotel',
-                subtitle: 'Comfort, style and unforgettable experiences in the heart of the city.',
-                cta_text: 'Book now'
-        } %}
+        <main>
+                <section class="relative max-w-7xl mx-auto py-48 my-6 bg-cover bg-center rounded-2xl" style="background-image: url('{{ asset('assets/background.jpg') }}');">
+                        <div class="absolute inset-0 bg-black opacity-25 rounded-2xl"></div>
+                        <div class="relative">
+                                <form action="/search" method="get" class="bg-white rounded-2xl p-5 max-w-6xl mx-auto text-left">
+                                <div class="grid grid-cols-1 md:grid-cols-11 gap-3 items-center justify-between">
+                                        <div class="md:col-span-3">
+                                        <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start date</label>
+                                        <input
+                                                type="date"
+                                                name="start_date"
+                                                id="start_date"
+                                                class="block w-full rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                                                aria-label="Start date"
+                                        />
+                                        </div>
+                                        <div class="md:col-span-3">
+                                        <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End date</label>
+                                        <input
+                                                type="date"
+                                                name="end_date"
+                                                id="end_date"
+                                                class="block w-full rounded-lg border border-gray-300 bg-white py-2 px-3 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                                                aria-label="End date"
+                                        />
+                                        </div>
+                                        <div class="md:col-span-3">
 
-        {% include 'components/features.html.twig' with {
-                items: [
-                        { title: 'Rooms', text: 'Cozy and modern rooms designed for your comfort.' },
-                        { title: 'Dining', text: 'Delicious local and international cuisine.' },
-                        { title: 'Wellness', text: 'Spa, pool and fitness facilities to relax.' }
-                ]
-        } %}
+                                        </div>
+                                        <div class="md:col-span-2 flex justify-center">
+                                        {% include 'components/search/button.html.twig' %}
+                                        </div>
+                                </div>
+                                </form>
+                        </div>
+                        </section>
 
-        {% include 'components/section.html.twig' with {
-                title: 'Special offer',
-                text: 'Save 20% on stays this season. Limited time only.',
-                button_text: 'See offers',
-                button_url: '#'
-        } %}
-    </main>
+        </main>
 {% endblock %}
