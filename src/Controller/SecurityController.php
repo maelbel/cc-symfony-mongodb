@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Form\FormError;
 
 class SecurityController extends AbstractController
 {
@@ -18,6 +19,9 @@ class SecurityController extends AbstractController
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
+        if ($this->getUser()) {
+            return $this->redirectToRoute('home');
+        }
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
 
@@ -43,25 +47,39 @@ class SecurityController extends AbstractController
         $form = $this->createForm(CustomerType::class, $customer);
 
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted()) {
+
+            $repo = $dm->getRepository(Customer::class);
             
-            $customer->setUsername($form->get('username')->getData());
-            $customer->setAdress($form->get('adress')->getData());
-            $customer->setTel($form->get('tel')->getData());
-            $customer->setMail($form->get('mail')->getData());
-            $customer->setPassword($hasher->hashPassword($customer,$form->get('password')->getData()));
+            if ($repo->findOneBy(['username' => $customer->getUsername()])) {
+                 $form->get('username')->addError(
+                new FormError("Username already used.")
+            );
+            }
+            elseif($repo->findOneBy(['mail' => $customer->getMail()])) {
+                $form->get('mail')->addError(
+                new FormError("Email already used.")
+            );
+            }
 
-            $dm->persist($customer);
-            $dm->flush();
+            if($form->isValid()){
+                $customer->setUsername($form->get('username')->getData());
+                $customer->setAdress($form->get('adress')->getData());
+                $customer->setTel($form->get('tel')->getData());
+                $customer->setMail($form->get('mail')->getData());
+                $customer->setRoles(['ROLE_USER']);
+                $customer->setPassword($hasher->hashPassword($customer,$form->get('password')->getData()));
 
-            return $this->redirectToRoute('app_login');
+                $dm->persist($customer);
+                $dm->flush();
+
+                return $this->redirectToRoute('app_login');
+            }
         }
-
         return $this->render('security/register.html.twig', [
-            'error' => $error,
-            'form' => $form,
-        ]);
-    }
+                    'form' => $form->createView(),
+                ]);
+        }
 
     #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void
