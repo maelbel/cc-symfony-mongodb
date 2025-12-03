@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<h2>Booking Details</h2>
+<ul>
+  <li>Hotel: {{ reservation.hotel.hotelName }}</li>
+  <li>Address: {{ reservation.hotel.hotelAddress }}</li>
+  <li>Room: {{ reservation.room.roomCode ?? 'Not specified' }}</li>
+  <li>From: {{ reservation.startDate|date('d/m/Y') }}</li>
+  <li>To: {{ reservation.endDate|date('d/m/Y') }}</li>
+</ul>
+<a href="{{ path('customer_dashboard') }}">Back</a>
+{% endblock %}

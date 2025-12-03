@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<h2>Welcome {{ customer.username }}</h2>
+<h3>My Bookings</h3>
+<ul>
+  {% for reservation in reservations %}
+    <li>
+      Hotel: {{ reservation.hotel.hotelName }}<br>
+      Room: {{ reservation.room.roomCode ?? 'Not specified' }}<br>
+      From {{ reservation.startDate|date('d/m/Y') }} to {{ reservation.endDate|date('d/m/Y') }}
+      <a href="{{ path('customer_reservation_confirm_cancel', {id: reservation.reservationCode}) }}">Cancel</a>
+    </li>
+  {% else %}
+    <li>No bookings found.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
