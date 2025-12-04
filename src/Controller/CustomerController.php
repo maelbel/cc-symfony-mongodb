@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\Type\CustomerType;
 use App\Form\Type\ReservationType;
+use App\Form\Type\NoteType;
 
 class CustomerController extends AbstractController
 {
@@ -110,6 +111,22 @@ class CustomerController extends AbstractController
         ]);
     }
 
+    #[Route('/reservation/{id}/addNote', name: 'customer_reservation_add_note', methods: ['POST'])]
+    public function addNote(Request $request, DocumentManager $dm, int $id): Response
+    {
+        $reservation = $dm->getRepository(Reservation::class)->find($id);
+
+        if (!$reservation) {
+            return $this->json(['error' => 'Reservation not found'], 404);
+        }
+
+        $note = $request->request->get('note'); 
+
+        $reservation->setNote($note);
+        $dm->flush();
+
+        return $this->redirectToRoute('customer_dashboard'); 
+    }
 
 
 }

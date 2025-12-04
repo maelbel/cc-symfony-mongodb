@@ -7,6 +7,7 @@
   <li>Room: {{ reservation.room.roomCode ?? 'Not specified' }}</li>
   <li>From: {{ reservation.startDate|date('d/m/Y') }}</li>
   <li>To: {{ reservation.endDate|date('d/m/Y') }}</li>
+  <li> Note : {{reservation.note ? 'Not specified'}}
 </ul>
 <a href="{{ path('customer_dashboard') }}">Back</a>
 {% endblock %}

@@ -10,6 +10,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Doctrine\Bundle\MongoDBBundle\Form\Type\DocumentType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class ReservationType extends AbstractType
 {
@@ -33,6 +34,10 @@ class ReservationType extends AbstractType
             ->add('endDate', DateType::class, [
                 'widget' => 'single_text',
                 'label' => 'End Date'
+            ])
+            ->add('note', TextareaType::class, [
+                'required' => false,
+                'label' => 'Notes',
             ]);
     }
 

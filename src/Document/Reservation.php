@@ -26,6 +26,20 @@ class Reservation
     #[ODM\Field(type: 'date')]
     private $endDate;
 
+    #[ODM\Field(type: 'string')]
+    private $note;
+
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    public function setNote(?string $note): static
+    {
+        $this->note = $note;
+        return $this;
+    }
+
     // Getters & setters
     public function getReservationCode(): ?string
     {
