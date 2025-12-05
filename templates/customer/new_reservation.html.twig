@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<h2>New Booking</h2>
+{{ form_start(form) }}
+    {{ form_row(form.hotel) }}
+    {{ form_row(form.room) }}
+    {{ form_row(form.startDate) }}
+    {{ form_row(form.endDate) }}
+    {{ form_row(form.note) }}    
+    <button type="submit">Book Now</button>
+{{ form_end(form) }}
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<h2>Update your profile</h2>
+{{ form_start(form) }}
+    {{ form_row(form.username) }}
+    {{ form_row(form.mail) }}
+    {{ form_row(form.adress) }}
+    {{ form_row(form.tel) }}
+    <button type="submit">Save changes</button>
+{{ form_end(form) }}
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<h2>Confirm Cancellation</h2>
+<p>Are you sure you want to cancel the booking at {{ reservation.hotel.hotelName }} from {{ reservation.startDate|date('d/m/Y') }} to {{ reservation.endDate|date('d/m/Y') }}?</p>
+<a href="{{ path('customer_reservation_cancel', {id: reservation.reservationCode}) }}">Yes, cancel</a> |
+<a href="{{ path('customer_dashboard') }}">No, go back</a>
+{% endblock %}
