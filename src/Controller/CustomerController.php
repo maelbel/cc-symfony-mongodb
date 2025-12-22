@@ -54,6 +54,11 @@ class CustomerController extends AbstractController
     public function newReservation(Request $request, DocumentManager $dm): Response
     {
         $reservation = new Reservation();
+        if (!$this->getUser()) {
+            $this->addFlash('error', 'You must be logged in to book a room.');
+            return $this->redirectToRoute('app_login');
+        }
+
         $reservation->setCustomer($this->getUser());
 
         $form = $this->createForm(ReservationType::class, $reservation);

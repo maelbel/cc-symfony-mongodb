@@ -6,39 +6,43 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Service\RoomService;
 
 final class SearchController extends AbstractController
 {
-    #[Route('/search', name: 'app_search')]
-    public function index(Request $request): Response
+    #[Route('/search', name: 'app_search', methods: ['GET'])]
+    public function index(): Response
     {
+        return $this->render('search/index.html.twig');
+    }
+
+    #[Route('/search/results', name: 'search_results', methods: ['GET'])]
+    public function searchResults(Request $request, RoomService $roomService): Response
+    {
+        $city = $request->query->get('city');
         $start = $request->query->get('start_date');
         $end = $request->query->get('end_date');
 
-        $startDate = null;
-        $endDate = null;
-        try {
-            if ($start) {
+        $results = [];
+
+        if ($city && $start && $end) {
+            try {
                 $startDate = new \DateTimeImmutable($start);
-            }
-        } catch (\Exception $e) {
-            $startDate = null;
-        }
-
-        try {
-            if ($end) {
                 $endDate = new \DateTimeImmutable($end);
+
+                $results = $roomService->searchAvailableRooms($city, $startDate, $endDate);
+
+            } catch (\Exception $e) {
+                $results = [];
             }
-        } catch (\Exception $e) {
-            $endDate = null;
         }
 
-        return $this->render('search/index.html.twig', [
-            'controller_name' => 'SearchController',
-            'start_date' => $start,
-            'end_date' => $end,
-            'start_date_obj' => $startDate,
-            'end_date_obj' => $endDate,
+        return $this->render('home/index.html.twig', [
+            'results' => $results,
+            'city' => $city,
+            'start' => $start,
+            'end' => $end,
         ]);
     }
+
 }
