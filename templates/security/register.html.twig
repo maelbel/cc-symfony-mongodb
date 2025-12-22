@@ -1,49 +1,54 @@
+{% extends 'layouts/public.html.twig' %}
 
 {% block title %}Register{% endblock %}
 
-{% block body %}
-    {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
-        
-        <div class="mb-3">
-            {{ form_label(form.username) }}
-            {{ form_widget(form.username, {'attr': {'class': 'form-control'}}) }}
-            {% if form.username.vars.errors|length > 0 %}
-                <div class="text-danger mt-1">
-                    {% for error in form.username.vars.errors %}
-                        <small>{{ error.message }}</small>
-                    {% endfor %}
+{% block main %}
+    <div class="min-h-[70vh] flex items-center justify-center">
+        <div class="w-full max-w-lg bg-white/80 backdrop-blur rounded-lg shadow-md p-6">
+            <h1 class="text-2xl font-semibold text-slate-800 mb-4">Create your account</h1>
+
+            {{ form_start(form, {'attr': {'class': 'space-y-4'}}) }}
+
+                <div>
+                    {{ form_label(form.username, null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700 mb-1'}}) }}
+                    {{ form_widget(form.username, {'attr': {'class': 'w-full rounded-md border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400'}}) }}
+                    {{ form_errors(form.username) }}
                 </div>
-            {% endif %}
-        </div>
 
-        <div class="mb-3">
-            {{ form_label(form.adress) }}
-            {{ form_widget(form.adress, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.adress) }}
-        </div>
-
-        <div class="mb-3">
-            {{ form_label(form.tel) }}
-            {{ form_widget(form.tel, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.tel) }}
-        </div>
-
-        <div class="mb-3">
-            {{ form_label(form.mail) }}
-            {{ form_widget(form.mail, {'attr': {'class': 'form-control'}}) }}
-            {% if form.mail.vars.errors|length > 0 %}
-                <div class="text-danger mt-1">
-                    {% for error in form.mail.vars.errors %}
-                        <small>{{ error.message }}</small>
-                    {% endfor %}
+                <div>
+                    {{ form_label(form.address, null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700 mb-1'}}) }}
+                    {{ form_widget(form.address, {'attr': {'class': 'w-full rounded-md border border-slate-200 px-3 py-2'}}) }}
+                    {{ form_errors(form.address) }}
                 </div>
-            {% endif %}
-        </div>
 
-        <div class="mb-3">
-            {{ form_label(form.password) }}
-            {{ form_widget(form.password, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.password) }}
+                <div>
+                    {{ form_label(form.phone, null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700 mb-1'}}) }}
+                    {{ form_widget(form.phone, {'attr': {'class': 'w-full rounded-md border border-slate-200 px-3 py-2'}}) }}
+                    {{ form_errors(form.phone) }}
+                </div>
+
+                <div>
+                    {{ form_label(form.email, null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700 mb-1'}}) }}
+                    {{ form_widget(form.email, {'attr': {'class': 'w-full rounded-md border border-slate-200 px-3 py-2'}}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+
+                <div>
+                    {{ form_label(form.password, null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700 mb-1'}}) }}
+                    {{ form_widget(form.password, {'attr': {'class': 'w-full rounded-md border border-slate-200 px-3 py-2'}}) }}
+                    {{ form_errors(form.password) }}
+                </div>
+
+                <div class="mt-4 text-sm text-slate-700">
+                    <p>Already have an account? <a href="{{ path('app_login') }}" class="text-sky-600 hover:underline">Login here</a></p>
+                </div>
+
+                <div class="flex items-center justify-end">
+                    <button type="submit" class="px-4 py-2 rounded-md text-sm font-medium bg-sky-600 text-white hover:bg-sky-700">Register</button>
+                </div>
+
+            {{ form_end(form) }}
+
         </div>
-    {{ form_end(form) }}
+    </div>
 {% endblock %}

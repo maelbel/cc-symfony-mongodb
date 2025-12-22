@@ -29,13 +29,13 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
     private $username;
 
     #[ODM\Field(type: 'string')]
-    private $adress;
+    private $address;
 
     #[ODM\Field(type: 'string')]
-    private $mail;
+    private $email;
 
     #[ODM\Field(type: 'int')]
-    private $tel;
+    private $phone;
 
     public function getCustomerCode(): ?string
     {
@@ -96,14 +96,14 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
   
-    public function getAdress()
+    public function getAddress()
     {
-        return $this->adress;
+        return $this->address;
     }
 
-    public function setAdress($adress)
+    public function setAddress($address)
     {
-        $this->adress = $adress;
+        $this->address = $address;
 
         return $this;
     }
@@ -120,26 +120,26 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getMail()
+    public function getEmail()
     {
-        return $this->mail;
+        return $this->email;
     }
 
-    public function setMail($mail)
+    public function setEmail($email)
     {
-        $this->mail = $mail;
+        $this->email = $email;
 
         return $this;
     }
 
-    public function getTel()
+    public function getPhone()
     {
-        return $this->tel;
+        return $this->phone;
     }
 
-    public function setTel($tel)
+    public function setPhone($phone)
     {
-        $this->tel = $tel;
+        $this->phone = $phone;
 
         return $this;
     }

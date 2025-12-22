@@ -8,7 +8,7 @@
                         <div class="absolute inset-0 bg-black opacity-25 rounded-2xl"></div>
                         <div class="relative">
                                 <form action="{{ path('search_results') }}" method="get" class="bg-white rounded-2xl p-5 max-w-6xl mx-auto text-left">
-                                <div class="grid grid-cols-1 md:grid-cols-11 gap-3 items-center justify-between">
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center justify-between">
                                         <div class="md:col-span-3">
                                                 <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
                                                 <input 
@@ -35,14 +35,10 @@
                                                 aria-label="End date"
                                         />
                                         </div>
-                                        <div class="md:col-span-3">
-
-                                        </div>
                                         <div class="md:col-span-2 flex justify-center">
                                         {% include 'components/search/button.html.twig' %}
                                         </div>
                                 </div>
-                                <button class="btn btn-primary">Search</button>
                                 </form>
                         </div>
                         </section>
