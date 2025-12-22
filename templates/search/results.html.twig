@@ -1,0 +1,32 @@
+
+    <p>From {{ start|date('d/m/Y') }} to {{ end|date('d/m/Y') }}</p>
+
+    {% if results is empty %}
+        <div class="alert alert-warning">No rooms available.</div>
+    {% else %}
+        <div class="row">
+            {% for item in results %}
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5>{{ item.hotel.hotelName }}</h5>
+                            <p>{{ item.hotel.hotelAddress }}</p>
+                            <p>
+                                Room type: {{ item.room.type }}<br>
+                                Beds: {{ item.room.numberOfBeds }}
+                            </p>
+
+                            <a href="{{ path('customer_reservation_new', {
+                                hotel: item.hotel.hotelCode,
+                                room: item.room.roomCode,
+                                start: start|date('Y-m-d'),
+                                end: end|date('Y-m-d')
+                            }) }}" class="btn btn-success">
+                                Book this room
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}

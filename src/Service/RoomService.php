@@ -9,6 +9,7 @@ use Knp\Component\Pager\PaginatorInterface;
 use MongoDB\BSON\Regex;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Document\Reservation;
 
 class RoomService
 {
@@ -197,4 +198,38 @@ class RoomService
 
 		return ['message' => 'Room deleted successfully'];
 	}
+
+	public function searchAvailableRooms(string $city, \DateTimeInterface $start, \DateTimeInterface $end): array
+	{
+		// find hotels in a city
+		$hotels = $this->dm->getRepository(Hotel::class)->findBy([
+			'hotelAddress' => new \MongoDB\BSON\Regex($city, 'i')
+		]);
+
+		$availableRooms = [];
+
+		foreach ($hotels as $hotel) {
+
+			foreach ($hotel->getRooms() as $room) {
+
+				//verify if the room is available for this date
+				$conflict = $this->dm->getRepository(Reservation::class)->findOneBy([
+					'room' => $room,
+					'startDate' => ['$lte' => $end],
+					'endDate' => ['$gte' => $start],
+				]);
+
+				//no reservation => room available
+				if (!$conflict) {
+					$availableRooms[] = [
+						'hotel' => $hotel,
+						'room' => $room
+					];
+				}
+			}
+		}
+
+		return $availableRooms;
+	}
+
 }
