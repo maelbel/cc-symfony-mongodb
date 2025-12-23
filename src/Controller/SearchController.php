@@ -37,11 +37,11 @@ final class SearchController extends AbstractController
             }
         }
 
-        return $this->render('home/index.html.twig', [
+        return $this->render('search/index.html.twig', [
             'results' => $results,
             'city' => $city,
-            'start' => $start,
-            'end' => $end,
+            'start_date' => $start,
+            'end_date' => $end,
         ]);
     }
 

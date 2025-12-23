@@ -29,6 +29,9 @@ class Reservation
     #[ODM\Field(type: 'string')]
     private $note;
 
+    #[ODM\Field(type: 'string')]
+    private $status = 'confirmed';
+
     public function getNote(): ?string
     {
         return $this->note;
@@ -37,6 +40,17 @@ class Reservation
     public function setNote(?string $note): static
     {
         $this->note = $note;
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
         return $this;
     }
 

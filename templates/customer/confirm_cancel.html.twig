@@ -1,7 +1,19 @@
-{% extends 'base.html.twig' %}
-{% block body %}
-<h2>Confirm Cancellation</h2>
-<p>Are you sure you want to cancel the booking at {{ reservation.hotel.hotelName }} from {{ reservation.startDate|date('d/m/Y') }} to {{ reservation.endDate|date('d/m/Y') }}?</p>
-<a href="{{ path('customer_reservation_cancel', {id: reservation.reservationCode}) }}">Yes, cancel</a> |
-<a href="{{ path('customer_dashboard') }}">No, go back</a>
+{% extends 'layouts/customer.html.twig' %}
+
+{% block page_title %}Confirm Cancellation{% endblock %}
+
+{% block breadcrumbs %}<a href="{{ path('customer_dashboard') }}">Home</a> / Confirm Cancellation{% endblock %}
+
+{% block customer_content %}
+	<div class="w-full max-w-2xl bg-white/80 backdrop-blur rounded-lg shadow-md p-6">
+		<h2 class="text-2xl font-semibold text-slate-800 mb-4">Confirm Cancellation</h2>
+
+		<p>Are you sure you want to cancel the booking at <strong>{{ reservation.hotel.hotelName }}</strong> from <strong>{{ reservation.startDate|date('d/m/Y') }}</strong> to <strong>{{ reservation.endDate|date('d/m/Y') }}</strong>?</p>
+
+		<div class="mt-4 flex gap-3">
+			<a href="{{ path('customer_reservation_cancel', {id: reservation.reservationCode}) }}" class="px-3 py-1 rounded bg-red-600 text-white">Yes, cancel</a>
+			<a href="{{ path('customer_dashboard') }}" class="px-3 py-1 rounded bg-slate-100 text-slate-700">No, go back</a>
+		</div>
+	</div>
+
 {% endblock %}

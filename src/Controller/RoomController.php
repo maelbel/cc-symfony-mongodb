@@ -55,19 +55,20 @@ class RoomController extends AbstractController
         return $this->json($this->roomService->add($data, $hotel), 201);
     }
 
-    #[Route('/room/getByCode/{roomCode}', name: 'room_read', methods: ['GET'])]
-    public function getByCode(string $roomCode): Response
+    #[Route('/room/{code}', name: 'room_show', methods: ['GET'])]
+    public function show(string $code): Response
     {
-        $room = $this->roomService->getByCode($roomCode);
+        $room = $this->roomService->getByCode($code);
+
         if (!$room) {
-            return $this->json(['error' => 'Room not found'], 404);
+            throw $this->createNotFoundException('Room not found');
         }
-        return $this->json([
-            'roomCode' => $room->getRoomCode(),
-            'floor' => $room->getFloor(),
-            'type' => $room->getType(),
-            'numberOfBeds' => $room->getNumberOfBeds(),
-            'hotelCode' => $room->getHotel() ? $room->getHotel()->getHotelCode() : null,
+
+        $hotel = $room->getHotel();
+
+        return $this->render('room/show.html.twig', [
+            'room' => $room,
+            'hotel' => $hotel,
         ]);
     }
 

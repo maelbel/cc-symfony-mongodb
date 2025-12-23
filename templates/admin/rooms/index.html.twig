@@ -1,62 +1,61 @@
-{% extends 'base.html.twig' %}
+{% extends 'layouts/dashboard.html.twig' %}
 {% block title %}{{ title }}{% endblock %}
-{% block body %}
-    <h1>{{ title }}</h1>
-    {% for message in app.flashes('success') %}
-        <div class="alert alert-success">{{ message }}</div>
-    {% endfor %}
-    {% for message in app.flashes('error') %}
-        <div class="alert alert-danger">{{ message }}</div>
-    {% endfor %}
-
-    <!-- Filter Form -->
-    <form action="{{ path('admin_rooms') }}" method="get">
-        <label>Type: <input type="text" name="type" value="{{ filters.type }}"></label>
-        <label>Floor: <input type="number" name="floor" value="{{ filters.floor }}"></label>
-        <label> Hotel: 
-            <select name="hotelCode">
+{% block dashboard_content %}
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-sky-700">{{ title }}</h1>
+        <p class="text-sm text-slate-500">Manage all rooms here.</p>
+    </div>
+    <div class="mb-4 flex justify-between items-center">
+        <form method="get" class="flex gap-2">
+            <input type="text" name="type" value="{{ filters.type }}" placeholder="Type" class="border border-slate-300 rounded px-3 py-2">
+            <input type="number" name="floor" value="{{ filters.floor }}" placeholder="Floor" class="border border-slate-300 rounded px-3 py-2">
+            <select name="hotelCode" class="border border-slate-300 rounded px-3 py-2">
                 <option value="">All Hotels</option>
                 {% for hotel in hotels %}
-                    <option value="{{ hotel.hotelCode }}" {% if filters.hotelCode == hotel.hotelCode %}selected{% endif %}>
-                        {{ hotel.name|default(hotel.hotelCode) }}
-                    </option>
+                    <option value="{{ hotel.hotelCode }}" {% if filters.hotelCode == hotel.hotelCode %}selected{% endif %}>{{ hotel.name|default(hotel.hotelCode) }}</option>
                 {% endfor %}
             </select>
-        </label>
-        <button type="submit">Filter</button>
-        <a href="{{ path('admin_rooms') }}"> Clear </a>
-    </form>
-
-    <a href="{{ path('admin_rooms_new') }}">Add New Room</a>
-    <table>
-        <thead>
-            <tr>
-                <th>Room Code</th>
-                <th>Floor</th>
-                <th>Type</th>
-                <th>Beds</th>
-                <th>Hotel Code</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for room in rooms %}
+            <button type="submit" class="px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700">Filter</button>
+        </form>
+        <a href="{{ path('admin_rooms_new') }}" class="px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700">Add Room</a>
+    </div>
+    <div class="bg-white rounded shadow p-6">
+        <table class="min-w-full divide-y divide-slate-200">
+            <thead>
                 <tr>
-                    <td>{{ room.roomCode }}</td>
-                    <td>{{ room.floor }}</td>
-                    <td>{{ room.type }}</td>
-                    <td>{{ room.numberOfBeds }}</td>
-                    <td>{{ room.hotelCode }}</td>
-                    <td>
-                        <a href="{{ path('admin_rooms_view', {'roomCode': room.roomCode}) }}">View</a>
-                        <a href="{{ path('admin_rooms_edit', {'roomCode': room.roomCode}) }}">Edit</a>
-                        <form action="{{ path('admin_rooms_delete', {'roomCode': room.roomCode}) }}" method="post" style="display:inline;">
-                            <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
-                        </form>
-                    </td>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-slate-500">Room Code</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-slate-500">Floor</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-slate-500">Type</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-slate-500">Beds</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-slate-500">Hotel</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-slate-500">Actions</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {{ knp_pagination_render(pagination) }}
+            </thead>
+            <tbody>
+                {% for room in rooms %}
+                    <tr class="border-b">
+                        <td class="px-4 py-2">{{ room.roomCode }}</td>
+                        <td class="px-4 py-2">{{ room.floor }}</td>
+                        <td class="px-4 py-2">{{ room.type }}</td>
+                        <td class="px-4 py-2">{{ room.numberOfBeds }}</td>
+                        <td class="px-4 py-2">{{ room.hotelCode }}</td>
+                        <td class="px-4 py-2">
+                            <a href="{{ path('admin_rooms_view', {'roomCode': room.roomCode}) }}" class="text-sky-600 hover:underline">View</a>
+                            <a href="{{ path('admin_rooms_edit', {'roomCode': room.roomCode}) }}" class="ml-2 text-yellow-600 hover:underline">Edit</a>
+                            <form method="post" action="{{ path('admin_rooms_delete', {'roomCode': room.roomCode}) }}" style="display:inline;" onsubmit="return confirm('Are you sure?');">
+                                <button type="submit" class="ml-2 text-red-600 hover:underline bg-transparent border-none cursor-pointer">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6" class="px-4 py-2 text-center text-slate-500">No rooms found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if pagination is defined %}
+            <div class="mt-4 flex justify-center">
+                {{ knp_pagination_render(pagination) }}
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}

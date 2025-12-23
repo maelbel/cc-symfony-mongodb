@@ -67,11 +67,13 @@ class SecurityController extends AbstractController
 
             if($form->isValid()){
                 $customer->setUsername($form->get('username')->getData());
-                $customer->setAdress($form->get('adress')->getData());
-                $customer->setTel($form->get('tel')->getData());
-                $customer->setMail($form->get('mail')->getData());
-                $customer->setRoles(['ROLE_USER']);
+                $customer->setAddress($form->get('address')->getData());
+                $customer->setPhone($form->get('phone')->getData());
+                $customer->setEmail($form->get('email')->getData());
                 $customer->setPassword($hasher->hashPassword($customer,$form->get('password')->getData()));
+
+                // default role
+                $customer->setRoles(['ROLE_USER']);
 
                 $dm->persist($customer);
                 $dm->flush();

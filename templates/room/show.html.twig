@@ -1,0 +1,71 @@
+{% extends 'layouts/public.html.twig' %}
+
+{% block title %}Room details{% endblock %}
+
+{% block main %}
+<div class="w-full my-8 bg-white/80 backdrop-blur">
+  <div class="max-w-6xl mx-auto px-6 py-8">
+    <div class="bg-white/80 rounded-lg shadow-md p-8">
+      <a href="{{ app.request.headers.get('referer') ?: path('home') }}" class="text-sm text-slate-600 hover:underline">← Back</a>
+
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-2">
+          <h1 class="text-2xl font-semibold">{{ hotel.getHotelName() is defined ? hotel.getHotelName() : hotel.hotelName|default('Hotel') }}</h1>
+          <p class="text-sm text-slate-500">{{ hotel.getHotelAddress() is defined ? hotel.getHotelAddress() : hotel.hotelAddress|default('') }}</p>
+
+          <div class="mt-6 bg-slate-50 rounded-md p-4">
+            <h2 class="text-lg font-medium">Room {{ room.getRoomCode() is defined ? room.getRoomCode() : (room.roomCode|default('')) }}</h2>
+            <p class="mt-2">Type: <strong>{{ room.getType() is defined ? room.getType() : room.type|default('') }}</strong></p>
+            <p class="mt-1">Floor: <strong>{{ room.getFloor() is defined ? room.getFloor() : room.floor|default('') }}</strong></p>
+            <p class="mt-1">Beds: <strong>{{ room.getNumberOfBeds() is defined ? room.getNumberOfBeds() : room.numberOfBeds|default('') }}</strong></p>
+            <div class="mt-4">
+              {# Determine start/end: use query params if present, otherwise default to today/tomorrow #}
+              {% set raw_start = app.request.query.get('start_date') ?: app.request.query.get('start') %}
+              {% set raw_end = app.request.query.get('end_date') ?: app.request.query.get('end') %}
+              {% if not raw_start %}
+                {% set raw_start = 'now' %}
+              {% endif %}
+              {% if not raw_end %}
+                {% set raw_end = raw_start == 'now' ? ("+1 day") : (raw_start ~ ' +1 day') %}
+              {% endif %}
+
+              {% set start_value = (raw_start == 'now') ? "now"|date('Y-m-d') : (raw_start|date('Y-m-d')) %}
+              {% set end_value = (raw_end starts with('+')) ? (('now'|date_modify(raw_end))|date('Y-m-d')) : (raw_end|date('Y-m-d')) %}
+
+              <div class="mb-3 text-sm text-slate-600">
+                <strong>Selected dates:</strong>
+                From {{ start_value|date('d/m/Y') }} to {{ end_value|date('d/m/Y') }}
+              </div>
+
+              <form method="post" action="{{ path('customer_reservation_quick') }}" class="inline">
+                <input type="hidden" name="hotel" value="{{ hotel.getHotelCode is defined ? hotel.getHotelCode() : hotel.hotelCode }}">
+                <input type="hidden" name="room" value="{{ room.getRoomCode is defined ? room.getRoomCode() : room.roomCode }}">
+                <input type="hidden" name="start_date" value="{{ start_value }}">
+                <input type="hidden" name="end_date" value="{{ end_value }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('quick_book') }}">
+                <button type="submit" class="inline-flex items-center px-4 py-2 rounded-md bg-sky-600 text-white hover:bg-sky-700">Book this room</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <aside class="md:col-span-1">
+          <div class="border rounded-md p-4">
+            <h3 class="font-semibold">Booking</h3>
+            <p class="text-sm text-slate-500 mt-2">Select dates from the search page to check availability and price.</p>
+            {% if start_value or end_value %}
+              <div class="mt-3 text-sm text-slate-700">
+                <strong>Reminder:</strong>
+                {% if start_value %} {{ start_value|date('d/m/Y') }}{% endif %}
+                {% if end_value %} — {{ end_value|date('d/m/Y') }}{% endif %}
+              </div>
+            {% endif %}
+            <a href="{{ path('hotel_get_rooms', {'codeHotel': hotel.getHotelCode()}) }}" class="mt-4 inline-block px-4 py-2 rounded-md bg-sky-600 text-white text-sm">View all rooms</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

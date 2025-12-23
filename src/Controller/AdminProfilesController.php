@@ -11,7 +11,7 @@ class AdminProfilesController extends AbstractController
     public function index(): Response
     {
         return $this->render('admin/profiles/index.html.twig', [
-            'title' => 'Admin Profiles',
+            'title' => 'Profiles',
         ]);
     }
 }

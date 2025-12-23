@@ -7,6 +7,7 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 class CustomerType extends AbstractType
@@ -18,7 +19,8 @@ class CustomerType extends AbstractType
             ->add('email', EmailType::class)
             ->add('address', TextType::class)
             ->add('phone', NumberType::class)
-            ->add('password', PasswordType::class)
+            ->add('password', PasswordType::class, ['required' => false])
+            // roles are handled in the controller; do not expose on registration form
         ;
     }
 }
