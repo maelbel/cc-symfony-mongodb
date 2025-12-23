@@ -85,7 +85,7 @@ class AdminCustomersController extends AbstractController
 
         $currentPassword = $customer->getPassword();
 
-        $form = $this->createForm(CustomerType::class, $customer);
+        $form = $this->createForm(CustomerType::class, $customer, ['include_roles' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
