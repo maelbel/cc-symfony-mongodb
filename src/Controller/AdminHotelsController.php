@@ -15,7 +15,7 @@ class AdminHotelsController extends AbstractController
     {
         $this->hotelService = $hotelService;
     }
-    #[Route('/admin/hotels', name: 'admin_hotels')]
+    #[Route('/admin/hotels', name: 'admin_hotels', methods: ['GET'])]
     public function index(Request $request): Response
     {
         // Use browse if filters are present, otherwise get all hotels

@@ -1,12 +1,24 @@
-{% extends 'base.html.twig' %}
-{% block body %}
-<h2>New Booking</h2>
-{{ form_start(form) }}
-    {{ form_row(form.hotel) }}
-    {{ form_row(form.room) }}
-    {{ form_row(form.startDate) }}
-    {{ form_row(form.endDate) }}
-    {{ form_row(form.note) }}    
-    <button type="submit">Book Now</button>
-{{ form_end(form) }}
+{% extends 'layouts/customer.html.twig' %}
+
+{% block page_title %}New Booking{% endblock %}
+
+{% block breadcrumbs %}<a href="{{ path('customer_dashboard') }}">Home</a> / New Booking{% endblock %}
+
+{% block customer_content %}
+    <div class="w-full max-w-xl bg-white/80 backdrop-blur rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-semibold text-slate-800 mb-4">New Booking</h2>
+
+        {{ form_start(form, {'attr': {'class': 'space-y-4'}}) }}
+            {{ form_row(form.hotel) }}
+            {{ form_row(form.room) }}
+            {{ form_row(form.startDate) }}
+            {{ form_row(form.endDate) }}
+            {{ form_row(form.note) }}
+
+            <div class="flex justify-end">
+                <button type="submit" class="px-4 py-2 rounded-md bg-sky-600 text-white">Book Now</button>
+            </div>
+        {{ form_end(form) }}
+    </div>
+
 {% endblock %}

@@ -1,56 +1,67 @@
-{% extends 'base.html.twig' %}
-{% block body %}
-<div class="container mt-5">
-  <h2>Welcome {{ customer.username }}</h2>
-  <h3>My Bookings</h3>
-  
+{% extends 'layouts/customer.html.twig' %}
+
+{% block page_title %}My Bookings{% endblock %}
+
+{% block breadcrumbs %}<a href="{{ path('customer_dashboard') }}">Home</a> / Bookings{% endblock %}
+
+{% block customer_content %}
+
   {% if reservations|length > 0 %}
-    <div class="row">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       {% for reservation in reservations %}
-        <div class="col-md-6 mb-4">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">{{ reservation.hotel.hotelName }}</h5>
-              <p class="card-text">
-                <strong>Room:</strong> {{ reservation.room.codeChambre ?? 'Not specified' }}<br>
-                <strong>Dates:</strong> {{ reservation.startDate|date('d/m/Y') }} to {{ reservation.endDate|date('d/m/Y') }}
-              </p>
-              
-              {% if reservation.note %}
-                <div class="alert alert-info mt-3">
-                  <strong>Note:</strong> {{ reservation.note }}
-                </div>
-              {% endif %}
-              
-              <div class="mt-3">
-                <!-- Add Note Button -->
-                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#noteModal{{ reservation.reservationCode }}">
-                  Add/Edit Note
-                </button>
-                
-                <!-- Cancel Button -->
-                <a href="{{ path('customer_reservation_confirm_cancel', {id: reservation.reservationCode}) }}" class="btn btn-sm btn-danger">
-                  Cancel Booking
-                </a>
-              </div>
-            </div>
+        <article class="bg-white/80 backdrop-blur rounded-lg shadow p-4">
+          <header class="mb-2">
+            <h4 class="text-lg font-semibold text-slate-800">{{ reservation.hotel.hotelName }}</h4>
+          </header>
+
+          <div class="text-sm text-slate-700 mb-3">
+            <p><strong>Room:</strong> {{ reservation.room.label ?: 'Not specified' }}</p>
+            <p><strong>Dates:</strong> {{ reservation.startDate|date('d/m/Y') }} — {{ reservation.endDate|date('d/m/Y') }}</p>
           </div>
-        </div>
-        
-        <!-- Modal for Adding Note -->
-        <div class="modal fade" id="noteModal{{ reservation.reservationCode }}" tabindex="-1">
+
+          {% if reservation.note %}
+            <div class="mb-3 rounded p-3 bg-sky-50 border border-sky-100 text-sky-800">
+              <strong>Note:</strong> {{ reservation.note }}
+            </div>
+          {% endif %}
+
+          <div class="flex gap-3">
+            <button
+                type="button"
+                class="px-3 py-1 rounded text-sm bg-sky-600 text-white hover:bg-sky-700"
+                data-bs-toggle="modal"
+                data-bs-target="#noteModal-{{ reservation.reservationCode }}"
+                aria-controls="noteModal-{{ reservation.reservationCode }}"
+                aria-expanded="false"
+              >
+                Add/Edit Note
+              </button>
+
+            <a
+              href="{{ path('customer_reservation_confirm_cancel', {id: reservation.reservationCode}) }}"
+              class="px-3 py-1 rounded text-sm bg-red-600 text-white hover:bg-red-700"
+            >
+              Cancel Booking
+            </a>
+          </div>
+        </article>
+
+        {# Modal preserved for compatibility #}
+        <div class="modal fade" id="noteModal-{{ reservation.reservationCode }}" tabindex="-1" aria-hidden="true" aria-labelledby="noteModalLabel-{{ reservation.reservationCode }}">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title">Add Note to Booking</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="noteModalLabel-{{ reservation.reservationCode }}">Add Note to Booking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <form method="POST" action="{{ path('customer_reservation_add_note', {id: reservation.reservationCode}) }}">
                 <div class="modal-body">
                   <div class="mb-3">
-                    <label for="note" class="form-label">Note</label>
-                    <textarea class="form-control" id="note" name="note" rows="4">{{ reservation.note }}</textarea>
-           </div>
+                    <label for="note-{{ reservation.reservationCode }}" class="form-label">Note</label>
+                    <textarea class="form-control" id="note-{{ reservation.reservationCode }}" name="note" rows="4" aria-describedby="noteHelp-{{ reservation.reservationCode }}">{{ reservation.note }}</textarea>
+                    <div id="noteHelp-{{ reservation.reservationCode }}" class="form-text">Add any details for the hotel or staff.</div>
+                    <input type="hidden" name="_token" value="{{ csrf_token('add_note') }}">
+                  </div>
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -60,13 +71,13 @@
             </div>
           </div>
         </div>
+
       {% endfor %}
     </div>
   {% else %}
-    <div class="alert alert-info">
-      No bookings found. <a href="{{ path('home') }}">Browse hotels</a>
+    <div class="rounded p-4 bg-sky-50 border border-sky-100 text-sky-800">
+      No bookings found. <a href="{{ path('home') }}" class="text-sky-600 hover:underline">Browse hotels</a>
     </div>
   {% endif %}
-</div>
 
 {% endblock %}

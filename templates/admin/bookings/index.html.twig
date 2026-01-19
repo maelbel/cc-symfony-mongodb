@@ -4,7 +4,79 @@
 
 {% block dashboard_content %}
   <div class="mb-6">
-    <h1 class="text-2xl font-bold text-sky-700">{% block dashboard_title %}{{ title }}{% endblock %}</h1>
-    <p class="text-sm text-slate-500">{% block dashboard_subtitle %}Welcome to your dashboard. This is a placeholder page — replace with useful widgets (bookings, stats, etc.).{% endblock %}</p>
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-sky-700">{% block dashboard_title %}{{ title }}{% endblock %}</h1>
+        <p class="text-sm text-slate-500 mt-1">{% block dashboard_subtitle %}Manage and review hotel bookings below.{% endblock %}</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <form method="GET" action="" class="flex items-center gap-2">
+          <input
+            name="q"
+            type="search"
+            placeholder="Search bookings..."
+            value="{{ app.request.get('q') }}"
+            class="px-3 py-2 rounded border border-slate-200 text-sm focus:ring-2 focus:ring-sky-200"
+          />
+          <button type="submit" class="px-3 py-2 bg-sky-600 text-white rounded text-sm hover:bg-sky-700">Search</button>
+        </form>
+
+        <a href="{{ path('admin_bookings') }}" class="px-3 py-2 bg-emerald-600 text-white rounded text-sm hover:bg-emerald-700">New Booking</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white/80 backdrop-blur rounded-lg shadow p-4">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm text-left">
+        <thead>
+          <tr class="text-slate-600 border-b">
+            <th class="py-3 px-4">Reservation Code</th>
+            <th class="py-3 px-4">Customer</th>
+            <th class="py-3 px-4">Hotel / Room</th>
+            <th class="py-3 px-4">Dates</th>
+            <th class="py-3 px-4">Status</th>
+            <th class="py-3 px-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if bookings is not defined or bookings|length == 0 %}
+            <tr>
+              <td colspan="6" class="py-6 px-4 text-center text-slate-600">No bookings found.</td>
+            </tr>
+          {% else %}
+            {% for booking in bookings %}
+              <tr class="border-b last:border-b-0 hover:bg-slate-50">
+                <td class="py-3 px-4 font-medium text-slate-800">{{ booking.reservationCode }}</td>
+                <td class="py-3 px-4">{{ booking.customer.username ?? booking.customer.email }}</td>
+                <td class="py-3 px-4">{{ booking.hotel.hotelName }}<div class="text-xs text-slate-500">{{ booking.room.label ?: '—' }}</div></td>
+                <td class="py-3 px-4">{{ booking.startDate|date('d/m/Y') }} — {{ booking.endDate|date('d/m/Y') }}</td>
+                <td class="py-3 px-4">
+                  {% set status = booking.status ?? 'confirmed' %}
+                  {% if status == 'cancelled' %}
+                    <span class="text-xs px-2 py-1 rounded bg-red-100 text-red-700">Cancelled</span>
+                  {% elseif status == 'confirmed' %}
+                    <span class="text-xs px-2 py-1 rounded bg-emerald-100 text-emerald-700">Confirmed</span>
+                  {% else %}
+                    <span class="text-xs px-2 py-1 rounded bg-slate-100 text-slate-700">{{ status|capitalize }}</span>
+                  {% endif %}
+                </td>
+                <td class="py-3 px-4">
+                  <div class="flex items-center gap-2">
+                    <a href="{{ path('admin_bookings_show', {id: booking.reservationCode}) }}" class="text-sky-600 hover:underline">View</a>
+                    <a href="{{ path('admin_bookings_edit', {id: booking.reservationCode}) }}" class="text-slate-600 hover:underline">Edit</a>
+                    <form method="POST" action="{{ path('admin_bookings_delete', {id: booking.reservationCode}) }}" onsubmit="return confirm('Delete this booking?');" class="inline">
+                      <input type="hidden" name="_token" value="{{ csrf_token('delete_booking_' ~ booking.reservationCode) }}">
+                      <button type="submit" class="text-red-600 hover:underline">Delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
   </div>
 {% endblock %}

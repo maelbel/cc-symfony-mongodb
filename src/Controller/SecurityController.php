@@ -20,6 +20,9 @@ class SecurityController extends AbstractController
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         if ($this->getUser()) {
+            if ($this->isGranted('ROLE_ADMIN')) {
+                return $this->redirectToRoute('admin_dashboard');
+            }
             return $this->redirectToRoute('home');
         }
         // get the login error if there is one
@@ -56,19 +59,21 @@ class SecurityController extends AbstractController
                 new FormError("Username already used.")
             );
             }
-            elseif($repo->findOneBy(['mail' => $customer->getMail()])) {
-                $form->get('mail')->addError(
+            elseif($repo->findOneBy(['mail' => $customer->getEMail()])) {
+                $form->get('email')->addError(
                 new FormError("Email already used.")
             );
             }
 
             if($form->isValid()){
                 $customer->setUsername($form->get('username')->getData());
-                $customer->setAdress($form->get('adress')->getData());
-                $customer->setTel($form->get('tel')->getData());
-                $customer->setMail($form->get('mail')->getData());
-                $customer->setRoles(['ROLE_USER']);
+                $customer->setAddress($form->get('address')->getData());
+                $customer->setPhone($form->get('phone')->getData());
+                $customer->setEmail($form->get('email')->getData());
                 $customer->setPassword($hasher->hashPassword($customer,$form->get('password')->getData()));
+
+                // default role
+                $customer->setRoles(['ROLE_USER']);
 
                 $dm->persist($customer);
                 $dm->flush();

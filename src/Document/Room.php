@@ -58,4 +58,29 @@ class Room
         $this->hotel = $hotel;
         return $this;
     }
+
+    /**
+     * Return a human-friendly label for the room, e.g. floor + roomCode (101)
+     */
+    public function getLabel(): string
+    {
+        $floor = $this->floor !== null ? (string)$this->floor : '';
+        $code = $this->roomCode !== null ? (string)$this->roomCode : '';
+
+        if ($floor === '' && $code === '') {
+            return '';
+        }
+
+        if ($floor === '') {
+            return $code;
+        }
+
+        if ($code === '') {
+            return $floor;
+        }
+
+        // Pad room code to two digits when possible
+        $padded = str_pad($code, 2, '0', STR_PAD_LEFT);
+        return $floor . $padded;
+    }
 }

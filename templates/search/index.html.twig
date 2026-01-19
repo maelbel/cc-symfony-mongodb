@@ -3,24 +3,78 @@
 {% block title %}Search{% endblock %}
 
 {% block main %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<div class="w-full my-8 bg-white/80 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-6 py-8">
+            <div class="bg-white/80 rounded-lg shadow-md p-8">
+        <h1 class="text-3xl font-semibold mb-4 text-slate-800">Find hotels</h1>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+        {# Normalize start/end dates for date inputs: accept strings or DateTime objects #}
+        {% set start_value = start_date is defined and start_date ? start_date|date('Y-m-d') : '' %}
+        {% set end_value = end_date is defined and end_date ? end_date|date('Y-m-d') : '' %}
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/home/mael/cours/cc-symfony/my-hotel/src/Controller/SearchController.php</code></li>
-        <li>Your template at <code>/home/mael/cours/cc-symfony/my-hotel/templates/search/index.html.twig</code></li>
-    </ul>
-    
-    <h2>Search Parameters</h2>
-    <ul>
-        <li>Start Date: <strong>{{ start_date }}</strong></li>
-        <li>End Date: <strong>{{ end_date }}</strong></li>
-    </ul>
+        <form method="get" action="{{ path('search_results') }}" class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+            <div class="md:col-span-3">
+                <label class="block text-sm font-medium text-slate-700 mb-1">City</label>
+                <input name="city" type="text" value="{{ city|default('') }}" class="w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Where are you going?">
+            </div>
+
+            <div class="md:col-span-1">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Start</label>
+                <input name="start_date" type="date" value="{{ start_value }}" class="w-full rounded-md border border-slate-200 px-3 py-2">
+            </div>
+
+            <div class="md:col-span-1">
+                <label class="block text-sm font-medium text-slate-700 mb-1">End</label>
+                <input name="end_date" type="date" value="{{ end_value }}" class="w-full rounded-md border border-slate-200 px-3 py-2">
+            </div>
+
+            <div class="md:col-span-1 text-right">
+                <button type="submit" class="px-4 py-2 rounded-md text-sm font-medium bg-sky-600 text-white hover:bg-sky-700">Search</button>
+            </div>
+        </form>
+
+        <div class="mt-8">
+            <h2 class="text-xl font-medium">Search parameters</h2>
+            <p class="text-sm text-slate-600 mt-2">City: <strong>{{ city|default('—') }}</strong> — Dates: <strong>{{ (start_date is defined and start_date) ? start_date|date('F j, Y') : '—' }}</strong> to <strong>{{ (end_date is defined and end_date) ? end_date|date('F j, Y') : '—' }}</strong></p>
+        </div>
+
+        <div class="mt-8">
+            <h2 class="text-xl font-medium">Results</h2>
+            {% if results is defined and results|length > 0 %}
+                <ul class="mt-4 space-y-3">
+                    {% for item in results %}
+                        {# items from RoomService::searchAvailableRooms are ['hotel' => Hotel, 'room' => Room] #}
+                        {% set hotel = item.hotel is defined ? item.hotel : (item[0] is defined ? item[0] : item) %}
+                        {% set room = item.room is defined ? item.room : (item[1] is defined ? item[1] : null) %}
+
+                                <li class="p-4 rounded-md border border-slate-100 hover:shadow-sm">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <div class="min-w-0">
+                                            <div class="font-semibold text-slate-800 truncate">
+                                                {% if hotel.getHotelCode is defined %}
+                                                    <a href="{{ path('hotel_read', {'codeHotel': hotel.getHotelCode()}) }}" class="hover:underline">{% if room %}<span class="font-normal">{{ (room.getType() is defined ? room.getType() : (room.type|default(''))) | capitalize }}</span> — {% endif %}{{ hotel.getHotelName() is defined ? hotel.getHotelName() : (hotel.hotelName|default(hotel.name|default('Unknown'))) }}</a>
+                                                {% else %}
+                                                    {% if room %}<span class="font-normal">{{ room.getType() is defined ? room.getType() : (room.type|default('')) }}</span>{% endif %} — {{ hotel.getHotelName() is defined ? hotel.getHotelName() : (hotel.hotelName|default(hotel.name|default('Unknown'))) }}
+                                                {% endif %}
+                                            </div>
+                                            <div class="text-sm text-slate-500 truncate">{{ hotel.getHotelAddress() is defined ? hotel.getHotelAddress() : (hotel.hotelAddress|default('')) }}{% if room %} — Room: {{ (room.getType() is defined ? room.getType() : (room.type|default(''))) | capitalize }}{% endif %}</div>
+                                        </div>
+                                        <div class="text-right space-y-1">
+                                            {% if room is not null and (room.getRoomCode is defined or room.roomCode is defined) %}
+                                                {% set roomCode = room.getRoomCode is defined ? room.getRoomCode() : room.roomCode %}
+                                                <a href="{{ path('room_show', {'code': roomCode}) }}?start_date={{ start_value }}&end_date={{ end_value }}" class="inline-flex items-center px-3 py-1 rounded-md bg-sky-600 text-white text-sm hover:bg-sky-700">View room</a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-sm text-slate-600 mt-3">No results yet. Use the form above to search for hotels.</p>
+            {% endif %}
+        </div>
+      </div>
+    </div>
 </div>
+
 {% endblock %}

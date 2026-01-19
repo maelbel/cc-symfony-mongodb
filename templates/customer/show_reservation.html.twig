@@ -1,13 +1,25 @@
-{% extends 'base.html.twig' %}
-{% block body %}
-<h2>Booking Details</h2>
-<ul>
-  <li>Hotel: {{ reservation.hotel.hotelName }}</li>
-  <li>Address: {{ reservation.hotel.hotelAddress }}</li>
-  <li>Room: {{ reservation.room.roomCode ?? 'Not specified' }}</li>
-  <li>From: {{ reservation.startDate|date('d/m/Y') }}</li>
-  <li>To: {{ reservation.endDate|date('d/m/Y') }}</li>
-  <li> Note : {{reservation.note ? 'Not specified'}}
-</ul>
-<a href="{{ path('customer_dashboard') }}">Back</a>
+{% extends 'layouts/customer.html.twig' %}
+
+{% block page_title %}Booking Details{% endblock %}
+
+{% block breadcrumbs %}<a href="{{ path('customer_dashboard') }}">Home</a> / Booking Details{% endblock %}
+
+{% block customer_content %}
+  <div class="w-full max-w-2xl bg-white/80 backdrop-blur rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-semibold text-slate-800 mb-4">Booking Details</h2>
+
+    <ul class="space-y-2 text-sm text-slate-700">
+      <li><strong>Hotel:</strong> {{ reservation.hotel.hotelName }}</li>
+      <li><strong>Address:</strong> {{ reservation.hotel.hotelAddress }}</li>
+      <li><strong>Room:</strong> {{ reservation.room.roomCode ?? 'Not specified' }}</li>
+      <li><strong>From:</strong> {{ reservation.startDate|date('d/m/Y') }}</li>
+      <li><strong>To:</strong> {{ reservation.endDate|date('d/m/Y') }}</li>
+      <li><strong>Note:</strong> {{ reservation.note ?: 'Not specified' }}</li>
+    </ul>
+
+    <div class="mt-4">
+      <a href="{{ path('customer_dashboard') }}" class="text-sky-600 hover:underline">Back</a>
+    </div>
+  </div>
+
 {% endblock %}

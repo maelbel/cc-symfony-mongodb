@@ -1,11 +1,38 @@
-{% extends 'base.html.twig' %}
-{% block body %}
-<h2>Update your profile</h2>
-{{ form_start(form) }}
-    {{ form_row(form.username) }}
-    {{ form_row(form.mail) }}
-    {{ form_row(form.adress) }}
-    {{ form_row(form.tel) }}
-    <button type="submit">Save changes</button>
-{{ form_end(form) }}
+{% extends 'layouts/customer.html.twig' %}
+
+{% block page_title %}Profile{% endblock %}
+
+{% block breadcrumbs %}<a href="{{ path('customer_dashboard') }}">Home</a> / Profile{% endblock %}
+
+{% block customer_content %}
+    <div class="w-full bg-white/80 backdrop-blur rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-semibold text-slate-800 mb-4">Update your profile</h2>
+
+        {# Only render allowed editable fields to avoid exposing roles or other sensitive fields #}
+        {% set allowed = ['username', 'email', 'address', 'phone', 'password'] %}
+
+        {{ form_start(form, {'attr': {'class': 'space-y-4'}}) }}
+
+            {% for name in allowed %}
+                {% if attribute(form, name) is defined %}
+                    <div>
+                        {{ form_label(attribute(form, name), null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700 mb-1'}}) }}
+                        {{ form_widget(attribute(form, name), {'attr': {'class': 'w-full rounded-md border border-slate-200 px-3 py-2'}}) }}
+                        {{ form_errors(attribute(form, name)) }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <div class="flex items-center justify-end">
+                <button type="submit" class="px-4 py-2 rounded-md text-sm font-medium bg-sky-600 text-white hover:bg-sky-700">Save changes</button>
+            </div>
+
+        {# Render CSRF token explicitly (if present) and prevent auto-rendering of other fields #}
+        {% if form._token is defined %}
+            {{ form_widget(form._token) }}
+        {% endif %}
+
+        {{ form_end(form, {'render_rest': false}) }}
+    </div>
+
 {% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% block title %}{{ title }} - My Hotel{% endblock %}
+
+{% block dashboard_content %}
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-sky-700">Booking #{{ booking.reservationCode }}</h1>
+    <p class="text-sm text-slate-500">Details for this reservation.</p>
+  </div>
+
+  <div class="bg-white/80 backdrop-blur rounded-lg shadow p-4">
+    <dl class="grid grid-cols-1 gap-4">
+      <div>
+        <dt class="text-xs text-slate-500">Customer</dt>
+        <dd class="text-sm text-slate-800">{{ booking.customer.username ?? booking.customer.email }}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-slate-500">Hotel</dt>
+        <dd class="text-sm text-slate-800">{{ booking.hotel.hotelName }}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-slate-500">Room</dt>
+        <dd class="text-sm text-slate-800">{{ booking.room.label ?: '—' }}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-slate-500">Dates</dt>
+        <dd class="text-sm text-slate-800">{{ booking.startDate|date('d/m/Y') }} — {{ booking.endDate|date('d/m/Y') }}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-slate-500">Status</dt>
+        <dd class="text-sm text-slate-800">{{ booking.status|capitalize }}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-slate-500">Note</dt>
+        <dd class="text-sm text-slate-800">{{ booking.note ?: '—' }}</dd>
+      </div>
+    </dl>
+
+    <div class="mt-4 flex gap-2">
+      <a href="{{ path('admin_bookings_edit', {id: booking.reservationCode}) }}" class="px-3 py-2 bg-sky-600 text-white rounded text-sm hover:bg-sky-700">Edit</a>
+      <form method="POST" action="{{ path('admin_bookings_delete', {id: booking.reservationCode}) }}" onsubmit="return confirm('Delete this booking?');">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete_booking_' ~ booking.reservationCode) }}">
+        <button type="submit" class="px-3 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-700">Delete</button>
+      </form>
+      <a href="{{ path('admin_bookings') }}" class="px-3 py-2 bg-white border border-slate-200 text-slate-700 rounded hover:bg-slate-50">Back to list</a>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{# Customer navigation with active state #}
+{% set current = app.request.attributes.get('_route') %}
+
+<nav class="w-56 bg-white/80 backdrop-blur rounded-lg p-4 shadow">
+  <ul class="space-y-1">
+    <li>
+      <a href="{{ path('customer_dashboard') }}" class="block px-3 py-2 rounded {{ current == 'customer_dashboard' ? 'bg-sky-50 text-sky-700' : 'text-slate-700 hover:bg-slate-100' }}">Bookings</a>
+    </li>
+    <li>
+      <a href="{{ path('customer_profile') }}" class="block px-3 py-2 rounded {{ current == 'customer_profile' ? 'bg-sky-50 text-sky-700' : 'text-slate-700 hover:bg-slate-100' }}">Profile</a>
+    </li>
+  </ul>
+</nav>

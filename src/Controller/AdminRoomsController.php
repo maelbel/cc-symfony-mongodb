@@ -31,7 +31,7 @@ class AdminRoomsController extends AbstractController
         dump($data['data']);
         $hotels = $this->hotelRepository->findAll();
         return $this->render('admin/rooms/index.html.twig', [
-            'title' => 'Admin Rooms',
+            'title' => 'Rooms',
             'rooms' => $data['data'],
             'pagination' => $data['paginationObject'],
             'hotels' => $hotels,
