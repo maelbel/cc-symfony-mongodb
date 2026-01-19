@@ -59,8 +59,8 @@ class SecurityController extends AbstractController
                 new FormError("Username already used.")
             );
             }
-            elseif($repo->findOneBy(['mail' => $customer->getMail()])) {
-                $form->get('mail')->addError(
+            elseif($repo->findOneBy(['mail' => $customer->getEMail()])) {
+                $form->get('email')->addError(
                 new FormError("Email already used.")
             );
             }
